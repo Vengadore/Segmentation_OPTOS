@@ -75,7 +75,7 @@ class Generator_from_DataFrame:
         #                                                                         -- STEP START
         # Read the corresponding frame
         Frame = self.data.iloc[image].copy()
-        print(Frame)
+        print(Frame[self.X].values[0])
         # Read X and Y
         X = cv2.imread(Frame[self.X].values[0])  # The image is read as BGR
         X = cv2.cvtColor(X, cv2.COLOR_BGR2RGB)  # Color space correction is performed
