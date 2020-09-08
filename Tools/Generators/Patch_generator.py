@@ -84,7 +84,7 @@ class Generator_from_DataFrame:
                           norm_type=cv2.NORM_MINMAX,
                           dtype=cv2.CV_32F)
         (M, N, C) = X.shape  # Get the size of the image
-
+        
         y = cv2.imread(Frame[self.y].values[0])  # Resulting image read as BGR
         (My, Ny, Cy) = y.shape  # Get the size of the target image
         if Cy == 3:  # If the target is a three dimension image, the color space is changed
