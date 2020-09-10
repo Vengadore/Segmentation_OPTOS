@@ -69,29 +69,29 @@ class Generator_from_DataFrame:
         index = random.sample(self.order,
                               self.batch_size // 2)  ## Half of the batch is part of labeled as 1 and the other
         ## half as zero
-        self.order.remove(index)
+        [self.order.remove(element) for element in index]
 
         ## Empty arrays
         X_train = []
         y_train = []
 
         ## Read the images
-        for Image in self.data.iloc[index]:
+        for i in index:
             # Read the image
-            I = self.read_f(Image[self.X].value)
+            I = self.read_f(self.data[self.X].iloc[i])
             # Apply a transformation
             I = self.pre_proc(I)
             # Get the shape to perform operations
-            M, N = I.shape
+            M, N, C= I.shape
             ## Get the points of the patch
-            x = Image['y'].value
-            y = Image['x'].value
-            x_width = Image['y_width'].value
-            y_width = Image['x_width'].value
+            x = self.data['y'].iloc[i]
+            y = self.data['x'].iloc[i]
+            x_width = self.data['y_width'].iloc[i]
+            y_width = self.data['x_width'].iloc[i]
 
             ## Get the points of the negative patch
-            xN = np.random.randint(0, M, 1)
-            yN = np.random.randint(0, N, 1)
+            xN = int(np.random.randint(0, M, 1))
+            yN = int(np.random.randint(0, N, 1))
 
             ## Compute intersection over union to see that the negative patch doesn't belong to the annotation
             BoxGT = [x,y,x+x_width,y+y_width]
@@ -99,13 +99,13 @@ class Generator_from_DataFrame:
 
             while bb_intersection_over_union(BoxGT,BoxN) != 0:
                 ## Get the points of the negative patch
-                xN = np.random.randint(0, M, 1)
-                yN = np.random.randint(0, N, 1)
+                xN = int(np.random.randint(0, M, 1))
+                yN = int(np.random.randint(0, N, 1))
                 BoxN = [xN, yN, xN + x_width, yN + y_width]
             ## Add image to batch
-            X_train.append(self.pre_proc_ROI(I[x:x+x_width,y:y+y_width,:]))
+            X_train.append(cv2.resize(self.pre_proc_ROI(I[x:x+x_width,y:y+y_width,:]),self.target_size))
             ## Add negative image to batch
-            X_train.append(self.pre_proc_ROI(I[xN:xN + x_width, yN:yN + y_width, :]))
+            X_train.append(cv2.resize(self.pre_proc_ROI(I[xN:xN + x_width, yN:yN + y_width, :]),self.target_size))
 
             ## Add output class
             y_train.append([1.])
