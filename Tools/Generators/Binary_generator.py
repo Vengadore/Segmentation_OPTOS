@@ -99,8 +99,8 @@ class Generator_from_DataFrame:
 
             while bb_intersection_over_union(BoxGT,BoxN) != 0:
                 ## Get the points of the negative patch
-                xN = int(np.random.randint(0, M, 1))
-                yN = int(np.random.randint(0, N, 1))
+                xN = int(np.random.randint(0, M-x_width-1, 1))
+                yN = int(np.random.randint(0, N-y_width-1, 1))
                 BoxN = [xN, yN, xN + x_width, yN + y_width]
             ## Add image to batch
             X_train.append(cv2.resize(self.pre_proc_ROI(I[x:x+x_width,y:y+y_width,:]),self.target_size))
