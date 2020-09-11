@@ -88,10 +88,6 @@ class Generator_from_DataFrame:
             y = self.data['x'].iloc[i]
             x_width = self.data['y_width'].iloc[i]
             y_width = self.data['x_width'].iloc[i]
-            print(f"x = {x}, y = {y}, x_width = {x_width},y_width = {y_width}")
-            print(f"M = {M}, N = {N}")
-            print(f"Filename = {self.data[self.X].iloc[i]}")
-            print("---------------------------")
 
             ## Get the points of the negative patch
             xN = int(np.random.randint(0, M - x_width - 1, 1))
@@ -102,7 +98,6 @@ class Generator_from_DataFrame:
             BoxN  = [xN,yN,xN+x_width,yN+y_width]
 
             while bb_intersection_over_union(BoxGT,BoxN) >= 0.1:
-                print("Here")
                 ## Get the points of the negative patch
                 xN = int(np.random.randint(0, M-x_width-2, 1))
                 yN = int(np.random.randint(0, N-y_width-2, 1))
