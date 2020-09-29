@@ -21,7 +21,6 @@ def csv2xml(data: pd.DataFrame):
     :return:
     """
     os.mkdir("./VOCdevkit")
-
     os.mkdir("./VOCdevkit/VOC2012")
     os.mkdir("./VOCdevkit/VOC2012/Annotations")
     os.mkdir("./VOCdevkit/VOC2012/ImageSets")
