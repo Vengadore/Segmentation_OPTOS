@@ -7,7 +7,6 @@ from shutil import copyfile
 from sklearn.model_selection import train_test_split
 
 
-
 def csv2xml(data: pd.DataFrame):
     """
     csv2xml iterates over a dataframe to create VOC annotations from a csv with the following format
@@ -32,13 +31,15 @@ def csv2xml(data: pd.DataFrame):
     Classes = set(data['class'])
     Classes = [Class for Class in Classes]
     ImageSet = {}
+    for Class in Classes:
+      ImageSet[Class] = []
 
     for Image in Files:  ## For every Image (DataFrame) there are several bounding boxes
         path = os.path.split(Image)
 
         node_root = Element('annotation')  ## Base node
         node_folder = SubElement(node_root, 'folder')  ## Folder node
-        node_folder.text = "./VOCdevkit/VOC2012/JPEGImages"
+        node_folder.text = "VOC2012"
         node_filename = SubElement(node_root, 'filename')  ## Filename node
         node_filename.text = path[-1]
         node_source = SubElement(node_root, 'source')  ## Source node
@@ -98,34 +99,40 @@ def csv2xml(data: pd.DataFrame):
         with open(os.path.join("./VOCdevkit/VOC2012/Annotations", name + ".xml"), 'wb') as f:
             f.write(s)
 
-        #Indexes for train,trainval and val
-        train = []
-        trainval = []
-        val = []
+    #Indexes for train,trainval and val
+    train = []
+    trainval = []
+    val = []
 
-        ## Split data for each class
-        for Class in Classes:
-            names = set(ImageSet[Class])
-            names = [n for n in names]
+    ## Split data for each class
+    for Class in Classes:
+        names = set(ImageSet[Class])
+        names = [n for n in names]
+        X_train, X_test = train_test_split(names, test_size=0.2)
+        X_train = [X.split('.')[0] for X in X_train]
+        X_test = [X.split('.')[0] for X in X_test]
+        with open(f"./VOCdevkit/VOC2012/ImageSets/Main/{Class}_train.txt","x") as f:
+            for item in X_train:
+                f.write("%s\n" % item)
+        with open(f"./VOCdevkit/VOC2012/ImageSets/Main/{Class}_trainval.txt", "x") as f:
+            for item in X_test:
+                f.write("%s\n" % item)
+        with open(f"./VOCdevkit/VOC2012/ImageSets/Main/{Class}_val.txt", "x") as f:
+            for item in X_test:
+                f.write("%s\n" % item)
 
-            X_train, X_test = train_test_split(names, test_size=0.2)
-            with open(f"./VOCdevkit/VOC2012/ImageSet/Main/{Class}_train.txt","w") as f:
-                f.writelines(names[X_train])
-            with open(f"./VOCdevkit/VOC2012/ImageSet/Main/{Class}_trainval.txt", "w") as f:
-                f.writelines(names[X_test])
-            with open(f"./VOCdevkit/VOC2012/ImageSet/Main/{Class}_val.txt", "w") as f:
-                f.writelines(names[X_test])
+        train = train + X_train
+        trainval = trainval + X_test
+        val = val + X_test
+    # Write train, trainval and val txt
+    with open(f"./VOCdevkit/VOC2012/ImageSets/Main/train.txt","x") as f:
+        for item in train:
+                f.write("%s\n" % item)
+    with open(f"./VOCdevkit/VOC2012/ImageSets/Main/trainval.txt", "x") as f:
+        for item in trainval:
+                f.write("%s\n" % item)
+    with open(f"./VOCdevkit/VOC2012/ImageSets/Main/val.txt", "x") as f:
+        for item in val:
+                f.write("%s\n" % item)
 
-            train = train + names[X_train]
-            trainval = trainval + names[X_test]
-            val = val + names[X_test]
-        # Write train, trainval and val txt
-        with open(f"./VOCdevkit/VOC2012/ImageSet/Main/train.txt","w") as f:
-            f.writelines(train)
-        with open(f"./VOCdevkit/VOC2012/ImageSet/Main/trainval.txt", "w") as f:
-            f.writelines(trainval)
-        with open(f"./VOCdevkit/VOC2012/ImageSet/Main/val.txt", "w") as f:
-            f.writelines(val)
-
-        ## Create label_map_json_path manually
-
+    ## Create label_map_json_path manually
