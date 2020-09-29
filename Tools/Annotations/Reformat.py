@@ -6,7 +6,12 @@ import os
 
 def csv2xml(data: pd.DataFrame):
     """
-    csv2xml iterates over a dataframe to create VOC annotations
+    csv2xml iterates over a dataframe to create VOC annotations from a csv with the following format
+
+    ###############################################
+    ## Filename %% x1 %% y1 %% x2 %% y2 %% class ##
+    ###############################################
+
     :param data: Dataframe containing the data
     :param PathToAppend: Path to append to the path
     :return:
