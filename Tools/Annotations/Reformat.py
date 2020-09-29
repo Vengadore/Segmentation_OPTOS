@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 
-def csv2xml(data: pd.DataFrame, PathToAppend: str = "./"):
+def csv2xml(data: pd.DataFrame):
     """
     csv2xml iterates over a dataframe to create VOC annotations
     :param data: Dataframe containing the data
@@ -26,7 +26,7 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./"):
 
         node_root = Element('annotation')  ## Base node
         node_folder = SubElement(node_root, 'folder')  ## Folder node
-        node_folder.text = PathToAppend
+        node_folder.text = path[0]
         node_filename = SubElement(node_root, 'filename')  ## Filename node
         node_filename.text = path[-1]
         node_source = SubElement(node_root, 'source')  ## Source node
