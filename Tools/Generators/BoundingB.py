@@ -82,5 +82,5 @@ class VOC_format:
         # Extract segmented
         self.segmented = [x for x in self.root if x.tag == "segmented"]
         # Compute classes
-        self.classes = [x[0].text for x in self.objects]
+        self.classes = set([x[0].text for x in self.objects])
 

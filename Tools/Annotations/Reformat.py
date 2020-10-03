@@ -67,7 +67,7 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "",
         I = cv2.imread(Image)
         [M, N, C] = I.shape
         # Move the image to ImageSets
-        copyfile(Image, os.path.join(os.path.join(main_directory, "JPEGImages"), path[-1]))
+        copyfile(Image, os.path.join(os.path.join(main_directory, "JPEGImages"), path[-1]),follow_symlinks=False)
 
         node_size = SubElement(node_root, 'size')
 
