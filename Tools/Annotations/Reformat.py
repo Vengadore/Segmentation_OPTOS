@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import copy
 import imutils
+from ..Generators.BoundingB import VOC_format
 
 
 def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "", seed=32):
@@ -67,7 +68,7 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "",
         I = cv2.imread(Image)
         [M, N, C] = I.shape
         # Move the image to ImageSets
-        copyfile(Image, os.path.join(os.path.join(main_directory, "JPEGImages"), path[-1]),follow_symlinks=False)
+        copyfile(Image, os.path.join(os.path.join(main_directory, "JPEGImages"), path[-1]), follow_symlinks=False)
 
         node_size = SubElement(node_root, 'size')
 
@@ -173,17 +174,14 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "",
      id: 4
  }""")
 
-## MUST CHANGE TO USE A VOC ANNOTATION
-def augment(img_data, random_rot=False, horizontal_flips=False, vertical_flips=False, augment=True):
+
+def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=False, vertical_flips=False, augment=True):
     """ This function takes three parameters to define if data augmentation will be performed in the image given a
     set of parameters. It has no effect if {augmented} is set to False
 
-        :param img_data
-        The data looks like a data structure (dictionary) that MUST contain the keys:
-         - filepath
-         - bboxes
-         - width
-         - height
+        :param img_data Path to VOC annotation
+        :param image_path Path to look for the image
+        :param random_rot Performs random rotation from -15 to 15 degrees
 
         Data augmentation is performed in a way that the transformation is done only in a 90 degree multiple.
         A hard copy of the DataFrame is made and the coordinates are changed.
@@ -192,16 +190,21 @@ def augment(img_data, random_rot=False, horizontal_flips=False, vertical_flips=F
 
         At the end the function returns the loaded image and the modified DataFrame.
     """
-    assert 'filepath' in img_data
-    assert 'bboxes' in img_data
-    assert 'width' in img_data
-    assert 'height' in img_data
 
-    ## Copy original dictionary to change coordinates
-    img_data_aug = copy.deepcopy(img_data)
+    # Load VOC annotation
+    Data = VOC_format(img_data)
+
+    # Extract the correct path to the image
+    if image_path == "":
+        filepath = os.path.join(Data.folder.text,Data.filename.text)
+    else:
+        filepath = os.path.join(image_path,Data.filename.text)
+
+    ## Copy original annotation to make changes
+    img_data_aug = copy.deepcopy(Data)
 
     ## Correction to be read as RGB
-    img = cv2.imread(img_data_aug['filepath'])
+    img = cv2.imread(filepath)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     if augment:
@@ -212,46 +215,55 @@ def augment(img_data, random_rot=False, horizontal_flips=False, vertical_flips=F
         if horizontal_flips and np.random.randint(0, 2) == 0:
             img = cv2.flip(img, 1)
             Applied_aug += "H"
-            for bbox in img_data_aug['bboxes']:
-                x1 = bbox['x1']
-                x2 = bbox['x2']
-                bbox['x2'] = cols - x1
-                bbox['x1'] = cols - x2
+            for object in img_data_aug.objects:
+                bbox = object.find('bndbox')
+                x1 = float(bbox.find('xmin').text)
+                x2 = float(bbox.find('xmax').text)
+                object.find('bndbox').find('xmax').text = str(cols - x1)
+                object.find('bndbox').find('xmin').text = str(cols - x2)
         # Random vertical rotation
         if vertical_flips and np.random.randint(0, 2) == 0:
             img = cv2.flip(img, 0)
             Applied_aug += "V"
-            for bbox in img_data_aug['bboxes']:
-                y1 = bbox['y1']
-                y2 = bbox['y2']
-                bbox['y2'] = rows - y1
-                bbox['y1'] = rows - y2
-
+            for object in img_data_aug.objects:
+                bbox = object.find('bndbox')
+                y1 = float(bbox.find('ymin').text)
+                y2 = float(bbox.find('ymax').text)
+                object.find('bndbox').find('ymax').text = str(rows - y1)
+                object.find('bndbox').find('ymin').text = str(rows - y2)
         # If rotation allowed
         if random_rot:
             ## Rotate the image first from -15 to 15 degrees, limit this so the bounding box doesn't have a big area
             angle = np.random.randint(-15, 15, 1)[0]
             img = imutils.rotate(img.copy(), angle)
             if angle < 0:
-                Applied_aug += "R" + str(np.abs(angle))[1:]
+                Applied_aug += "R_" + str(np.abs(angle))[1:]
             else:
                 Applied_aug += "R" + str(angle)
-
-            for bbox in img_data_aug['bboxes']:
+            for object in img_data_aug.objects:
                 if angle == 0:
                     pass
-                new_bbox = bb_rot(angle, img, bbox)
-                bbox['x1'] = new_bbox['x1']
-                bbox['x2'] = new_bbox['x2']
-                bbox['y1'] = new_bbox['y1']
-                bbox['y2'] = new_bbox['y2']
+                # Extract coordinates of Bounding Box
+                bbox = object.find('bndbox')
+                xmin = float(bbox.find('xmin').text)
+                xmax = float(bbox.find('xmax').text)
+                ymin = float(bbox.find('ymin').text)
+                ymax = float(bbox.find('ymax').text)
+                # Rotate bouding box
+                new_bbox = bb_rot(angle,img, [xmin,xmax,ymin,ymax])
+                # Overwrite new bounding box
+                object.find('bndbox').find('xmin').text = str(new_bbox['x1'])
+                object.find('bndbox').find('xmax').text = str(new_bbox['x2'])
+                object.find('bndbox').find('ymin').text = str(new_bbox['y1'])
+                object.find('bndbox').find('ymax').text = str(new_bbox['y2'])
 
         # Change name with data augmented values
-        path = img_data_aug['filepath']
-        s = img_data_aug['filepath'].split('.')
-        path = path[:-len(s[-1]) - 1] + Applied_aug + "." + s[
-            -1]  # Append the applied augmentation before the extension
-
+        path = img_data_aug.filename.text
+        s = path.split('.')
+        path = path[:-len(s[-1]) - 1] + Applied_aug + "." + s[-1]  # Append the applied augmentation before the extension
+        img_data_aug.filename.text = path
+        # Change folder
+        img_data_aug.folder.text = image_path
     img_data_aug['height'] = img.shape[0]
     img_data_aug['width'] = img.shape[1]
 
