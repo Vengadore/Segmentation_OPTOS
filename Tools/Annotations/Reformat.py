@@ -205,6 +205,7 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
 
     ## Correction to be read as RGB
     img = cv2.imread(filepath)
+    print(filepath)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     if augment:
@@ -215,47 +216,48 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
         if horizontal_flips and np.random.randint(0, 2) == 0:
             img = cv2.flip(img, 1)
             Applied_aug += "H"
-            for object in img_data_aug.objects:
-                bbox = object.find('bndbox')
+            for obj in img_data_aug.objects:
+                bbox = obj.find('bndbox')
                 x1 = float(bbox.find('xmin').text)
                 x2 = float(bbox.find('xmax').text)
-                object.find('bndbox').find('xmax').text = str(cols - x1)
-                object.find('bndbox').find('xmin').text = str(cols - x2)
+                obj.find('bndbox').find('xmax').text = str(cols - x1)
+                obj.find('bndbox').find('xmin').text = str(cols - x2)
         # Random vertical rotation
         if vertical_flips and np.random.randint(0, 2) == 0:
             img = cv2.flip(img, 0)
             Applied_aug += "V"
-            for object in img_data_aug.objects:
-                bbox = object.find('bndbox')
+            for obj in img_data_aug.objects:
+                bbox = obj.find('bndbox')
                 y1 = float(bbox.find('ymin').text)
                 y2 = float(bbox.find('ymax').text)
-                object.find('bndbox').find('ymax').text = str(rows - y1)
-                object.find('bndbox').find('ymin').text = str(rows - y2)
+                obj.find('bndbox').find('ymax').text = str(rows - y1)
+                obj.find('bndbox').find('ymin').text = str(rows - y2)
         # If rotation allowed
         if random_rot:
             ## Rotate the image first from -15 to 15 degrees, limit this so the bounding box doesn't have a big area
             angle = np.random.randint(-15, 15, 1)[0]
             img = imutils.rotate(img.copy(), angle)
             if angle < 0:
-                Applied_aug += "R_" + str(np.abs(angle))[1:]
+                Applied_aug += "R_" + str(np.abs(angle))
             else:
                 Applied_aug += "R" + str(angle)
-            for object in img_data_aug.objects:
+            for obj in img_data_aug.objects:
                 if angle == 0:
                     pass
                 # Extract coordinates of Bounding Box
-                bbox = object.find('bndbox')
-                xmin = float(bbox.find('xmin').text)
-                xmax = float(bbox.find('xmax').text)
-                ymin = float(bbox.find('ymin').text)
-                ymax = float(bbox.find('ymax').text)
+                bbox = obj.find('bndbox')
+                bb = {}
+                bb['x1'] = float(bbox.find('xmin').text)
+                bb['x2'] = float(bbox.find('xmax').text)
+                bb['y1'] = float(bbox.find('ymin').text)
+                bb['y2'] = float(bbox.find('ymax').text)
                 # Rotate bouding box
-                new_bbox = bb_rot(angle,img, [xmin,xmax,ymin,ymax])
+                new_bbox = bb_rot(angle,img, bb)
                 # Overwrite new bounding box
-                object.find('bndbox').find('xmin').text = str(new_bbox['x1'])
-                object.find('bndbox').find('xmax').text = str(new_bbox['x2'])
-                object.find('bndbox').find('ymin').text = str(new_bbox['y1'])
-                object.find('bndbox').find('ymax').text = str(new_bbox['y2'])
+                obj.find('bndbox').find('xmin').text = str(new_bbox['x1'])
+                obj.find('bndbox').find('xmax').text = str(new_bbox['x2'])
+                obj.find('bndbox').find('ymin').text = str(new_bbox['y1'])
+                obj.find('bndbox').find('ymax').text = str(new_bbox['y2'])
 
         # Change name with data augmented values
         path = img_data_aug.filename.text
@@ -264,8 +266,8 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
         img_data_aug.filename.text = path
         # Change folder
         img_data_aug.folder.text = image_path
-    img_data_aug['height'] = img.shape[0]
-    img_data_aug['width'] = img.shape[1]
+    img_data_aug.size.find('width').text = str(img.shape[0])
+    img_data_aug.size.find('height').text = str(img.shape[1])
 
     # Returns the modified structure and the modified image
     return img_data_aug, img
