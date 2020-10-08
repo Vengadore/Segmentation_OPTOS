@@ -173,7 +173,7 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "",
      id: 4
  }""")
 
-
+## MUST CHANGE TO USE A VOC ANNOTATION
 def augment(img_data, random_rot=False, horizontal_flips=False, vertical_flips=False, augment=True):
     """ This function takes three parameters to define if data augmentation will be performed in the image given a
     set of parameters. It has no effect if {augmented} is set to False
