@@ -64,11 +64,13 @@ class VOC_format:
     def saveXml(self,New_path = ""):
         """This function saves the changes and overwrites the xml file or writes a new file"""
         if New_path == "":
+            # Saves the file in the same directory with the name in file
             with open(self.name, "wb") as f:
                 f.write(ET.tostring(self.root))
                 f.close()
         else:
-            with open(os.path.join(New_path,self.name), "wb") as f:
+            # Saves the file in a new directory
+            with open(os.path.join(New_path,self.filename), "wb") as f:
                 f.write(ET.tostring(self.root))
                 f.close()
 
@@ -90,4 +92,9 @@ class VOC_format:
         self.segmented = [x for x in self.root if x.tag == "segmented"]
         # Compute classes
         self.classes = set([x[0].text for x in self.objects])
-
+        # New Name
+        splited = self.name.split(os.path.sep)
+        full_path = ""
+        for i in splited[:-1]:
+            full_path = os.path.join(full_path,i)
+        self.name = os.path.join(full_path,splited[-1].split('.')[0]+".xml")
