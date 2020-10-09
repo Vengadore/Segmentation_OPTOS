@@ -207,7 +207,6 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
 
     # Correction to be read as RGB
     img = cv2.imread(filepath)
-    print(filepath)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     if augment:
