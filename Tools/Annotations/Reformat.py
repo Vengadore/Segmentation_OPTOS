@@ -268,7 +268,6 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
 
     img_data_aug.size.find('width').text = str(img.shape[0])
     img_data_aug.size.find('height').text = str(img.shape[1])
-    # img_data_aug.update_dependencies()
 
     # Returns the modified structure and the modified image
     return img_data_aug, img
