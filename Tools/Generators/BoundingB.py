@@ -66,12 +66,20 @@ class VOC_format:
         if New_path == "":
             # Saves the file in the same directory with the name in file
             splited = self.name.split(os.path.sep)
-            full_path = ""
+            if splited[0] == ".":
+                full_path = ""
+            else:
+                full_path = os.path.sep
             for i in splited[:-1]:
                 full_path = os.path.join(full_path, i)
             new_name = os.path.join(full_path, self.filename.text.split(".")[-2] + ".xml")
-            print(new_name)
             with open(new_name, "wb") as f:
+                f.write(ET.tostring(self.root))
+                f.close()
+        else:
+            # Saves the file in a new directory
+            new_name = self.filename.text.split('.')[-2]+".xml"
+            with open(os.path.join(New_path,new_name), "wb") as f:
                 f.write(ET.tostring(self.root))
                 f.close()
         else:
