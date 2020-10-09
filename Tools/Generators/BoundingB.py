@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import copy
 import numpy as np
 from ..Generators.Binary_generator import bb_intersection_over_union as bbIoU
+import os
 
 
 class VOC_format:
@@ -60,10 +61,16 @@ class VOC_format:
         print("{} BackgroundBB created".format(i + 1))
         self.saveXml()
 
-    def saveXml(self):
-        """This function saves the changes and overwrites the xml file"""
-        with open(self.name, "wb") as f:
-            f.write(ET.tostring(self.root))
+    def saveXml(self,New_path = ""):
+        """This function saves the changes and overwrites the xml file or writes a new file"""
+        if New_path == "":
+            with open(self.name, "wb") as f:
+                f.write(ET.tostring(self.root))
+                f.close()
+        else:
+            with open(os.path.join(New_path,self.name), "wb") as f:
+                f.write(ET.tostring(self.root))
+                f.close()
 
     def update_dependencies(self):
         """This function updates all the variables of the object"""

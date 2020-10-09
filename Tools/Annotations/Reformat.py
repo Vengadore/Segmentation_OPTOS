@@ -194,16 +194,18 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
     # Load VOC annotation
     Data = VOC_format(img_data)
 
+    # Copy original annotation to make changes
+    img_data_aug = copy.deepcopy(Data)
+
     # Extract the correct path to the image
     if image_path == "":
         filepath = os.path.join(Data.folder.text,Data.filename.text)
     else:
         filepath = os.path.join(image_path,Data.filename.text)
+        # Change folder
+        img_data_aug.folder.text = image_path
 
-    ## Copy original annotation to make changes
-    img_data_aug = copy.deepcopy(Data)
-
-    ## Correction to be read as RGB
+    # Correction to be read as RGB
     img = cv2.imread(filepath)
     print(filepath)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -264,10 +266,10 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
         s = path.split('.')
         path = path[:-len(s[-1]) - 1] + Applied_aug + "." + s[-1]  # Append the applied augmentation before the extension
         img_data_aug.filename.text = path
-        # Change folder
-        img_data_aug.folder.text = image_path
+
     img_data_aug.size.find('width').text = str(img.shape[0])
     img_data_aug.size.find('height').text = str(img.shape[1])
+    img_data_aug.update_dependencies()
 
     # Returns the modified structure and the modified image
     return img_data_aug, img
