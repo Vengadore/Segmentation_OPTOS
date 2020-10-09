@@ -175,7 +175,7 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "",
  }""")
 
 
-def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=False, vertical_flips=False, augment=True):
+def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=False, vertical_flips=False, augment=False):
     """ This function takes three parameters to define if data augmentation will be performed in the image given a
     set of parameters. It has no effect if {augmented} is set to False
 
