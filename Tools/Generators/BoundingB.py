@@ -82,12 +82,6 @@ class VOC_format:
             with open(os.path.join(New_path,new_name), "wb") as f:
                 f.write(ET.tostring(self.root))
                 f.close()
-        else:
-            # Saves the file in a new directory
-            new_name = self.filename.text.split('.')[-2]+".xml"
-            with open(os.path.join(New_path,new_name), "wb") as f:
-                f.write(ET.tostring(self.root))
-                f.close()
 
     def update_dependencies(self):
         """This function updates all the variables of the object"""
