@@ -70,7 +70,7 @@ class VOC_format:
                 f.close()
         else:
             # Saves the file in a new directory
-            with open(os.path.join(New_path,self.filename), "wb") as f:
+            with open(os.path.join(New_path,self.filename.text), "wb") as f:
                 f.write(ET.tostring(self.root))
                 f.close()
 
