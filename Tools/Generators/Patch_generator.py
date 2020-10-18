@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 import random
+import torch
 
 
 class Generator_from_DataFrame:
@@ -17,7 +18,8 @@ class Generator_from_DataFrame:
         :param n_patches:      Number of patches to extract from the image.
     """
 
-    def __init__(self, DataFrame, patch_size=[32, 32], X="File", y="GT", n_patches=100,transforX = lambda x:x,transfory = lambda x:x):
+    def __init__(self, DataFrame, patch_size=[32, 32], X="File", y="GT", n_patches=100, transforX=lambda x: x,
+                 transfory=lambda x: x):
 
         # Get the name of the columns with the data
         self.X = X
@@ -89,7 +91,7 @@ class Generator_from_DataFrame:
                           norm_type=cv2.NORM_MINMAX,
                           dtype=cv2.CV_32F)
         (M, N, C) = X.shape  # Get the size of the image
-        
+
         y = cv2.imread(Frame[self.y].values[0])  # Resulting image read as BGR
         (My, Ny, Cy) = y.shape  # Get the size of the target image
         if Cy == 3:  # If the target is a three dimension image, the color space is changed
@@ -122,11 +124,11 @@ class Generator_from_DataFrame:
 
             # Append the patch to the images
             X_train.append(self.transformationX(X[x_coor:x_coor + self.patch_size[0],
-                           y_coor:y_coor + self.patch_size[1], :]))
+                                                y_coor:y_coor + self.patch_size[1], :]))
 
             # Append the patch of target image
             y_train.append(self.transformationy(y[x_coor:x_coor + self.patch_size[0],
-                           y_coor:y_coor + self.patch_size[1], :]))
+                                                y_coor:y_coor + self.patch_size[1], :]))
 
         # Make sure they're numpy arrays (as opposed to lists)
         X_train = np.array(X_train)
@@ -161,11 +163,11 @@ class Image2Generator:
         self.batch_size = batch_size
 
         # If not data found, raise an exception
-        #if not os.path.isfile(File):
+        # if not os.path.isfile(File):
         #    raise Exception(f"Sorry, no data in {File} to process")
 
         # If found, read image
-        #X = cv2.imread(File)  # The image is read as BGR
+        # X = cv2.imread(File)  # The image is read as BGR
         X = cv2.cvtColor(File, cv2.COLOR_BGR2RGB)  # Color space correction is performed
         X = cv2.normalize(X, None, alpha=0,  # Normalize image to fit from 0 to 1
                           beta=1,
@@ -186,8 +188,8 @@ class Image2Generator:
         Patches = []
 
         # Create the patches for the image
-        for X_coordinate in range(0, (n_patches_x - 1) * self.patch_size[0], self.patch_size[0]):  # -- BATCH START
-            for Y_coordinate in range(0, (n_patches_y - 1) * self.patch_size[1], self.patch_size[1]):
+        for X_coordinate in range(0, (n_patches_x) * self.patch_size[0], self.patch_size[0]):  # -- BATCH START
+            for Y_coordinate in range(0, (n_patches_y) * self.patch_size[1], self.patch_size[1]):
                 Patches.append(self.I[X_coordinate:X_coordinate + self.patch_size[0],
                                Y_coordinate:Y_coordinate + self.patch_size[1], :])
 
@@ -195,7 +197,7 @@ class Image2Generator:
         self.patches = np.array(Patches)
         self.n_patches_x = n_patches_x
         self.n_patches_y = n_patches_y
-        self.total_patches = n_patches_y * n_patches_x + (n_patches_y * n_patches_x)%batch_size
+        self.total_patches = n_patches_y * n_patches_x + ((n_patches_y * n_patches_x) % batch_size)
 
         self.index = 0
         # User notification
@@ -209,16 +211,18 @@ class Image2Generator:
         if self.index + self.batch_size > self.n_patches_x * self.n_patches_y:
             fill = np.zeros([self.patch_size[0], self.patch_size[1], self.C])
             fill = np.array([fill for i in range(self.index + self.batch_size - self.n_patches_x * self.n_patches_y)])
+            print(fill.shape)
             return np.concatenate((self.patches[self.index:], fill))
         else:
+            to_return = self.patches[self.index: self.index + self.batch_size]
             self.index = self.index + self.batch_size
-            return self.patches[self.index - self.batch_size: self.index]
+            return to_return
 
     def __iter__(self):
         return self
 
 
-def Generator2Image(model,generator):
+def Generator2Image(model, generator):
     """
     Takes a Sequential model and computes its output on the batches of a generator created with Image2Generator
     :param model:       Sequential model.
@@ -228,16 +232,53 @@ def Generator2Image(model,generator):
     # Compute the first batch to create the variable
     Output = model.predict_on_batch(next(generator))
     # Compute the remaining batches
-    for i in range(int(generator.total_patches / generator.batch_size) -1):
-        Output = np.concatenate((Output,model.predict_on_batch(next(generator))))
+    for i in range(int(generator.total_patches / generator.batch_size) - 1):
+        Output = np.concatenate((Output, model.predict_on_batch(next(generator))))
     # Extract a template image to store the patches
-    I = 0*generator.I
+    I = 0 * generator.I
     # Replace the patch in the image
     i = 0
-    for X_coordinate in range(0, (generator.n_patches_x - 1) * generator.patch_size[0], generator.patch_size[0]):  # -- BATCH START
-        for Y_coordinate in range(0, (generator.n_patches_y -1) * generator.patch_size[1], generator.patch_size[1]):
+    for X_coordinate in range(0, (generator.n_patches_x) * generator.patch_size[0],
+                              generator.patch_size[0]):  # -- BATCH START
+        for Y_coordinate in range(0, (generator.n_patches_y) * generator.patch_size[1], generator.patch_size[1]):
             I[X_coordinate:X_coordinate + generator.patch_size[0],
-              Y_coordinate:Y_coordinate + generator.patch_size[1],0] = Output[i,:,:,0]
-            i = i+1
-    return I[0:generator.M,0:generator.N,0]
+            Y_coordinate:Y_coordinate + generator.patch_size[1], 0] = Output[i, :, :, 0]
+            i = i + 1
+    return I[0:generator.M, 0:generator.N, 0]
 
+
+def Generator2ImagePT(model, generator):
+    """
+    Takes a PYTORCH model and computes its output on the batches of a generator created with Image2Generator
+    :param model:       Sequential model.
+    :param generator:   Generator created with Image2Generator
+    :return: (Original,New_image)
+    """
+    if torch.cuda.is_available():
+        device = torch.device('cuda:0')
+    else:
+        device = torch.device('cpu')
+
+    # Compute the first batch to create the variable
+    X = next(generator)
+    X = X.transpose(0, 3, 1, 2)
+    X = torch.FloatTensor(X).to(device)
+    Output = model(X).cpu().detach().numpy().transpose(0, 2, 3, 1)
+    # Compute the remaining batches
+    for i in range(int(generator.total_patches / generator.batch_size) - 1):
+        X = next(generator)
+        X = X.transpose(0, 3, 1, 2)
+        X = torch.FloatTensor(X).to(device)
+        X = model(X).cpu().detach().numpy().transpose(0, 2, 3, 1)
+        Output = np.concatenate((Output, X), axis=0)
+    # Extract a template image to store the patches
+    I = 0 * generator.I
+    # Replace the patch in the image
+    i = 0
+    for X_coordinate in range(0, (generator.n_patches_x) * generator.patch_size[0],
+                              generator.patch_size[0]):  # -- BATCH START
+        for Y_coordinate in range(0, (generator.n_patches_y) * generator.patch_size[1], generator.patch_size[1]):
+            I[X_coordinate:X_coordinate + generator.patch_size[0],
+            Y_coordinate:Y_coordinate + generator.patch_size[1], 0] = Output[i, :, :, 0]
+            i = i + 1
+    return I[0:generator.M, 0:generator.N, 0]
