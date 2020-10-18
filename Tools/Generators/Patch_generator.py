@@ -17,7 +17,7 @@ class Generator_from_DataFrame:
         :param n_patches:      Number of patches to extract from the image.
     """
 
-    def __init__(self, DataFrame, patch_size=[32, 32], X="File", y="GT", n_patches=100):
+    def __init__(self, DataFrame, patch_size=[32, 32], X="File", y="GT", n_patches=100,transforX = lambda x:x,transfory = lambda x:x):
 
         # Get the name of the columns with the data
         self.X = X
@@ -25,6 +25,12 @@ class Generator_from_DataFrame:
 
         # Save the number of patches per image
         self.n_patches = n_patches
+
+        # Transformation for X
+        self.transformationX = transforX
+
+        # Transformation for y
+        self.transformationy = transfory
 
         # Save the size of the patches
         self.patch_size = patch_size
@@ -115,12 +121,12 @@ class Generator_from_DataFrame:
                 x_coor, y_coor = (int(np.random.normal(M / 2, M / 4)), int(np.random.normal(N / 2, N / 4)))
 
             # Append the patch to the images
-            X_train.append(X[x_coor:x_coor + self.patch_size[0],
-                           y_coor:y_coor + self.patch_size[1], :])
+            X_train.append(self.transformationX(X[x_coor:x_coor + self.patch_size[0],
+                           y_coor:y_coor + self.patch_size[1], :]))
 
             # Append the patch of target image
-            y_train.append(y[x_coor:x_coor + self.patch_size[0],
-                           y_coor:y_coor + self.patch_size[1], :])
+            y_train.append(self.transformationy(y[x_coor:x_coor + self.patch_size[0],
+                           y_coor:y_coor + self.patch_size[1], :]))
 
         # Make sure they're numpy arrays (as opposed to lists)
         X_train = np.array(X_train)
