@@ -193,7 +193,7 @@ def compute_mask(I: np.array):
     blur = cv2.GaussianBlur(I, (5, 5), 0)
     for i in range(50):
         blur = cv2.GaussianBlur(blur, (11, 11), 0)
-    ret3, th3 = cv2.threshold(blur[:, :, 0], 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret3, th3 = cv2.threshold(cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     mask = np.array(th3 > ret3, dtype=np.uint8)
 
     kernel = np.ones((31, 31), np.uint8)
