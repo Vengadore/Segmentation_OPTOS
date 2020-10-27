@@ -120,7 +120,8 @@ class Generator_from_DataFrame:
             x_coor, y_coor = (0, 0)
             while (x_coor <= 0) or (x_coor + self.patch_size[0] > M) or (y_coor <= 0) or (
                     y_coor + self.patch_size[1] > N):
-                x_coor, y_coor = (int(np.random.normal(M / 2, M / 4)), int(np.random.normal(N / 2, N / 4)))
+                #x_coor, y_coor = (int(np.random.normal(M / 2, M / 4)), int(np.random.normal(N / 2, N / 4)))
+                x_coor, y_coor = (int(np.random.uniform(0, M)), int(np.random.uniform(0, N)))
 
             # Append the patch to the images
             X_train.append(self.transformationX(X[x_coor:x_coor + self.patch_size[0],
