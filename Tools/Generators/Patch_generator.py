@@ -155,7 +155,7 @@ class Image2Generator:
         :param batch_size:     Number of patches to generate per batch
     """
 
-    def __init__(self, File, patch_size=[32, 32], batch_size=100):
+    def __init__(self, File, patch_size=[32, 32], batch_size=100,verbose = False):
 
         # Save the size of the patches
         self.patch_size = patch_size
@@ -202,7 +202,8 @@ class Image2Generator:
 
         self.index = 0
         # User notification
-        print(f"A generator object containing all the image has been created")
+        if verbose:
+            print(f"A generator object containing all the image has been created")
 
     def __next__(self):
         """
