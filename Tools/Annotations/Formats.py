@@ -52,7 +52,7 @@ class VOC_format_V2:
 
     # Compute classes
     def get_classes(self):
-        return set([obj.find('name').text for obj in self.root.findall('objects')])
+        return set([obj.find('name').text for obj in self.root.findall('object')])
 
     # Get the text of the attribute
     def get_attribute(self, attrib_name):
