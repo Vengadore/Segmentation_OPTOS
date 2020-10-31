@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import cv2
 import os
-from ..Generators.BoundingB import VOC_format
+from ..Annotations.Formats import VOC_format_V2
 import numpy as np
 
 
-def show_annotations(Annotations: VOC_format, FilePath="", frsize=(16, 8)):
+def show_annotations(Annotations: VOC_format_V2, FilePath="", frsize=(16, 8)):
     """Automatically plots the image with the annotations in it"""
     # Get the right path
     if FilePath == "":
@@ -16,7 +16,7 @@ def show_annotations(Annotations: VOC_format, FilePath="", frsize=(16, 8)):
     I = cv2.cvtColor(cv2.imread(FilePath), cv2.COLOR_BGR2RGB)
     # Create colors for the different classes
     colors = {}
-    for Class in Annotations.classes:
+    for Class in list(Annotations.get_classes()):
         colors[Class] = tuple([int(np.random.randint(0, 255,1)[0]) for i in range(3)])
 
     ## Extract all the annotations and draw them in the image

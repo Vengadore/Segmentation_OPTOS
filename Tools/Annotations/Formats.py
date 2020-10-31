@@ -58,7 +58,7 @@ class VOC_format_V2:
     def get_attribute(self, attrib_name):
         try:
             R = self.root.find(attrib_name).text
-            return self.root.find(attrib_name).text
+            return R
         except:
             raise NameError(f"{attrib_name} not found in root")
 
