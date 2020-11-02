@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import os
+from copy import deepcopy
 
 
 class VOC_format_V2:
@@ -69,7 +70,7 @@ class VOC_format_V2:
 
     # Add objects
     def add_object(self, obj):
-        self.root.append(obj)
+        self.root.append(deepcopy(obj))
         self.update_dependencies()
 
     ## Print feature

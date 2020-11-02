@@ -2,7 +2,50 @@ import xml.etree.ElementTree as ET
 import copy
 import numpy as np
 from ..Generators.Binary_generator import bb_intersection_over_union as bbIoU
+from ..Annotations.Formats import VOC_format_V2
 import os
+
+def createBackgroundBB(Annotation:VOC_format_V2):
+    # Extract all the bounding boxes
+    bboxes = [bndbox.find('bndbox') for bndbox in Annotation.objects]
+    # The means of the bounding boxes will be the height and width of the background bounding boxes
+    width_mean = sum([float(x.find('xmax').text) - float(x.find('xmin').text) for x in bboxes])/len(bboxes) # Extract all the widths and compute mean
+    height_mean = sum([float(x.find('ymax').text) - float(x.find('ymin').text) for x in bboxes])/len(bboxes)# Extract all the heights and compute mean
+    # Loop over the number of bounding boxes to create
+    IoU = 1.0
+    counter = 0
+    while IoU >= 0.01:  # While the Intersection over Union is too big we will create new coordinates
+        xmin = float(np.random.randint(0, float(Annotation.width.text) - width_mean, 1)[0])
+        xmax = xmin + width_mean
+        ymin = float(np.random.randint(0, float(Annotation.height.text) - height_mean, 1)[0])
+        ymax = ymin + height_mean
+        # Compute all the IoU with the other bounding boxes
+        IoU = sum([bbIoU([xmin, ymin, xmax, ymax],
+                         [float(x.find('xmin').text), float(x.find('ymin').text), float(x.find('xmax').text), float(x.find('ymax').text)]) for x in bboxes])
+        counter += 1
+        if counter > 99:
+            # If after 100 tries no bounding box is created then it is highly possible that there is no space left for a BackgroundBB
+            print("After {} tries no Background Bounding Box was created".format(counter))
+            return False
+    # Once the IoU is small enough then we can add that bounding box as an object to root
+    obj = Annotation.objects[-1] # Load an object example
+    # Chage values of the object
+    obj.find('name').text = "background"
+    # Make a deepcopy to make sure you don't modify the existing annotation
+    obj = copy.deepcopy(Annotation.objects[-1])
+    obj.find('name').text = "Background"  # Name
+    obj.find('pose').text = "Unspecified"  # Pose
+    obj.find('truncated').text = "0"  # Truncated
+    obj.find('difficult').text = "0"  # Difficult
+    # Add coordinates to object
+    obj.find('bndbox').find('xmin').text = str(xmin).split('.')[0]  # Keep only the integer part
+    obj.find('bndbox').find('ymin').text = str(ymin).split('.')[0]
+    obj.find('bndbox').find('xmax').text = str(xmax).split('.')[0]
+    obj.find('bndbox').find('ymax').text = str(ymax).split('.')[0]
+
+    # Append new object to root
+    Annotation.add_object(obj)
+    return True
 
 
 class VOC_format:
