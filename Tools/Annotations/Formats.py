@@ -74,13 +74,13 @@ class VOC_format_V2:
 
     ## Print feature
     def __str__(self):
-        Object = f"""--- Annotation --- \n
-|-- Folder:{self.get_attribute('Folder')}\n
-|-- Filename: {self.get_attribute('filename')}\n
-|-- Size: \n
-    |- width: {self.get_attribute('width')}\n
-    |- width: {self.get_attribute('height')}\n
-|-- Objects: \n"""
+        Object =f"--- Annotation --- \n" + \
+                f"|-- Folder:{self.get_attribute('folder')}\n" + \
+                f"|-- Filename: {self.get_attribute('filename')}\n" + \
+                "|-- Size: \n" + \
+                f"\t|- width: {self.size.find('width').text}\n" + \
+                f"\t|- width: {self.size.find('height').text}\n" + \
+                "|-- Objects: \n"
         def print_objects(objects):
             O = ""
             for obj in objects:
@@ -93,4 +93,3 @@ class VOC_format_V2:
                               f"    \t----------------------------------------------------"
             return O
         return Object + print_objects(self.objects)
-
