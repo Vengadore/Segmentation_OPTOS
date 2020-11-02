@@ -28,12 +28,9 @@ def createBackgroundBB(Annotation:VOC_format_V2):
             print("After {} tries no Background Bounding Box was created".format(counter))
             return False
     # Once the IoU is small enough then we can add that bounding box as an object to root
-    obj = Annotation.objects[-1] # Load an object example
-    # Chage values of the object
-    obj.find('name').text = "background"
     # Make a deepcopy to make sure you don't modify the existing annotation
     obj = copy.deepcopy(Annotation.objects[-1])
-    obj.find('name').text = "Background"  # Name
+    obj.find('name').text = "background"  # Name
     obj.find('pose').text = "Unspecified"  # Pose
     obj.find('truncated').text = "0"  # Truncated
     obj.find('difficult').text = "0"  # Difficult

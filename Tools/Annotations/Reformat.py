@@ -8,7 +8,6 @@ import numpy as np
 import copy
 import imutils
 from ..Generators.BoundingB import VOC_format
-from ..Annotations.Formats import  VOC_format_V2
 
 
 def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "", seed=32):
