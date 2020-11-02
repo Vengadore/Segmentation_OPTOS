@@ -17,7 +17,7 @@ def show_annotations(Annotations: VOC_format_V2, FilePath="", frsize=(16, 8)):
     # Create colors for the different classes
     colors = {}
     for Class in list(Annotations.get_classes()):
-        colors[Class] = tuple([int(np.random.randint(0, 255,1)[0]) for i in range(3)])
+        colors[Class] = tuple([int(np.random.randint(150, 255,1)[0]) for i in range(3)])
 
     ## Extract all the annotations and draw them in the image
     plt.figure(figsize=frsize)

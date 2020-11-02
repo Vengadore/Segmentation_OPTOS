@@ -14,15 +14,7 @@ class VOC_format_V2:
         """This function saves the changes and overwrites the xml file or writes a new file"""
         if New_path == "":
             # Saves the file in the same directory with the name in file
-            splited = self.name.split(os.path.sep)
-            if splited[0] == ".":
-                full_path = ""
-            else:
-                full_path = os.path.sep
-            for i in splited[:-1]:
-                full_path = os.path.join(full_path, i)
-            new_name = os.path.join(full_path, self.filename.text.split(".")[-2] + ".xml")
-            with open(new_name, "wb") as f:
+            with open(self.name, "wb") as f:
                 f.write(ET.tostring(self.root))
                 f.close()
         else:
@@ -68,6 +60,7 @@ class VOC_format_V2:
             self.root.find(attrib_name).text = new_value
         else:
             self.root.find(attrib_name).text = str(new_value)
+        self.update_dependencies()
 
     # Remove objects
     def remove_object(self, obj):
@@ -78,4 +71,26 @@ class VOC_format_V2:
     def add_object(self, obj):
         self.root.append(obj)
         self.update_dependencies()
+
+    ## Print feature
+    def __str__(self):
+        Object = f"""--- Annotation --- \n
+|-- Folder:{self.get_attribute('Folder')}\n
+|-- Filename: {self.get_attribute('filename')}\n
+|-- Size: \n
+    |- width: {self.get_attribute('width')}\n
+    |- width: {self.get_attribute('height')}\n
+|-- Objects: \n"""
+        def print_objects(objects):
+            O = ""
+            for obj in objects:
+                O = O + "\n"+ f"    \t|- name: {obj.find('name').text}\n"+ \
+                              f"    \t|- bndbox\n" + \
+                              f"    \t\t |- xmin: {obj.find('bndbox').find('xmin').text}\n" + \
+                              f"    \t\t |- xmax: {obj.find('bndbox').find('xmax').text}\n" + \
+                              f"    \t\t |- ymin: {obj.find('bndbox').find('ymin').text}\n" + \
+                              f"    \t\t |- ymax: {obj.find('bndbox').find('ymax').text}\n" + \
+                              f"    \t----------------------------------------------------"
+            return O
+        return Object + print_objects(self.objects)
 
