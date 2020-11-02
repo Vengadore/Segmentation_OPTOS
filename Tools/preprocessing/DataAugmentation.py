@@ -92,13 +92,13 @@ def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=F
                 obj.find('bndbox').find('ymax').text = str(new_bbox['y2'])
 
         # Change name with data augmented values
-        path = img_data_aug.filename.text
+        path = img_data_aug.get_attribute('filename')
         s = path.split('.')
         path = path[:-len(s[-1]) - 1] + Applied_aug + "." + s[-1]  # Append the applied augmentation before the extension
-        img_data_aug.filename.text = path
+        img_data_aug.change_attribute('filename',path)
 
-    img_data_aug.size.find('width').text = str(img.shape[0])
-    img_data_aug.size.find('height').text = str(img.shape[1])
+    img_data_aug.root.find('size').find('width').text = str(img.shape[0])
+    img_data_aug.root.find('size').find('height').text = str(img.shape[1])
 
     # Returns the modified structure and the modified image
     return img_data_aug, img
