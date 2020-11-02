@@ -8,6 +8,7 @@ import numpy as np
 import copy
 import imutils
 from ..Generators.BoundingB import VOC_format
+from ..Annotations.Formats import  VOC_format_V2
 
 
 def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "", seed=32):
@@ -176,6 +177,7 @@ def csv2xml(data: pd.DataFrame, PathToAppend: str = "./", DatasetName: str = "",
 
 
 def augment(img_data: str, image_path = "" ,random_rot=False, horizontal_flips=False, vertical_flips=False, augment=False):
+    """SOON TO BE GONE, USE Tools.preprocessing.DataAugmentation.augment"""
     """ This function takes three parameters to define if data augmentation will be performed in the image given a
     set of parameters. It has no effect if {augmented} is set to False
 
@@ -311,3 +313,5 @@ def bb_rot(angle, I, bb):
     new_bb['y2'] = np.max([P1[1], P2[1], P3[1], P4[1]])
 
     return new_bb
+
+
