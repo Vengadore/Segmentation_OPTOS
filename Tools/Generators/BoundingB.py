@@ -5,7 +5,7 @@ from ..Generators.Binary_generator import bb_intersection_over_union as bbIoU
 from ..Annotations.Formats import VOC_format_V2
 import os
 
-def createBackgroundBB(Annotation:VOC_format_V2):
+def createBackgroundBB(Annotation:VOC_format_V2,verbose = False):
     # Extract all the bounding boxes
     bboxes = [bndbox.find('bndbox') for bndbox in Annotation.objects]
     # The means of the bounding boxes will be the height and width of the background bounding boxes
@@ -25,7 +25,8 @@ def createBackgroundBB(Annotation:VOC_format_V2):
         counter += 1
         if counter > 99:
             # If after 100 tries no bounding box is created then it is highly possible that there is no space left for a BackgroundBB
-            print("After {} tries no Background Bounding Box was created".format(counter))
+            if verbose:
+                print("After {} tries no Background Bounding Box was created".format(counter))
             return False
     # Once the IoU is small enough then we can add that bounding box as an object to root
     # Make a deepcopy to make sure you don't modify the existing annotation
