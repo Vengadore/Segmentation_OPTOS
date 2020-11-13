@@ -5,8 +5,8 @@ from ..Annotations.Formats import VOC_format_V2
 import numpy as np
 
 
-def show_annotations(Annotations: VOC_format_V2, FilePath="", frsize=(16, 8)):
-    """Automatically plots the image with the annotations in it"""
+def show_annotations(Annotations: VOC_format_V2, FilePath="", frsize=(16, 8),show = True):
+    """Automatically plots the image with the annotations in it and returns the marked image"""
     # Get the right path
     if FilePath == "":
         FilePath = os.path.join(Annotations.folder.text, Annotations.filename.text)
@@ -31,4 +31,6 @@ def show_annotations(Annotations: VOC_format_V2, FilePath="", frsize=(16, 8)):
 
         I = cv2.rectangle(I, (xmin, ymin), (xmax, ymax), colors[class_name], 10)
         I = cv2.putText(I, class_name, (xmin, ymin - 10), 0, 1, colors[class_name], 4)
-    plt.imshow(I)
+    if show:
+        plt.imshow(I)
+    return I
