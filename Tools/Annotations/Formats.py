@@ -73,6 +73,17 @@ class VOC_format_V2:
         self.root.append(deepcopy(obj))
         self.update_dependencies()
 
+    # Get Object attributes
+    def get_object(self, n_object):
+        obj = self.objects[n_object]
+        return_value = {'name':obj.find('name').text,
+                        'xmin':int(obj.find('bndbox').find('xmin').text),
+                        'ymin':int(obj.find('bndbox').find('ymin').text),
+                        'xmax':int(obj.find('bndbox').find('xmax').text),
+                        'ymax':int(obj.find('bndbox').find('ymax').text)}
+        return return_value
+
+
     ## Print feature
     def __str__(self):
         Object =f"--- Annotation --- \n" + \
