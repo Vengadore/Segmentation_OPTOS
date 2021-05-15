@@ -1,12 +1,12 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
-    name='SegOPTOS',
+    name='OPTOS',
     version='0.1',
-    packages=['pandas','opencv-python','lxml','scikit-learn'],
-    url='https://github.com/Vengadore/Segmentation_OPTOS',
+    packages=['pytorch'],
+    url='https://github.com/Vengadore/Segmentation_OPTOS.git',
     license='',
-    author='César Rolando Carrillo Gómez',
-    author_email='crcg1995@hotmail.com',
-    description='Tools for image segmentation'
+    author='crcg1',
+    author_email='',
+    description=''
 )
