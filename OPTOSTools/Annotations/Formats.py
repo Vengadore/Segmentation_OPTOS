@@ -1,5 +1,5 @@
-import xml.etree.ElementTree as ET
 import os
+import xml.etree.ElementTree as ET
 from copy import deepcopy
 
 

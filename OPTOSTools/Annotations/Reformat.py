@@ -1,12 +1,14 @@
-import cv2
-from lxml.etree import Element, SubElement, tostring
-import pandas as pd
+import copy
 import os
 from shutil import copyfile
-from sklearn.model_selection import train_test_split
-import numpy as np
-import copy
+
+import cv2
 import imutils
+import numpy as np
+import pandas as pd
+from lxml.etree import Element, SubElement, tostring
+from sklearn.model_selection import train_test_split
+
 from ..Generators.BoundingB import VOC_format
 
 

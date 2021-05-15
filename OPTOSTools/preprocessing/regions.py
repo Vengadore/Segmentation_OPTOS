@@ -1,5 +1,5 @@
-import numpy as np
 import cv2
+import numpy as np
 
 
 def mask_pixels(Image: np.array, mask: np.array):

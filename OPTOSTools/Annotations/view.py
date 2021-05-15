@@ -1,8 +1,10 @@
-import matplotlib.pyplot as plt
-import cv2
 import os
-from ..Annotations.Formats import VOC_format_V2
+
+import cv2
+import matplotlib.pyplot as plt
 import numpy as np
+
+from ..Annotations.Formats import VOC_format_V2
 
 
 def show_annotations(Annotations: VOC_format_V2, FilePath="", frsize=(16, 8),show = True):

@@ -2,8 +2,8 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
-from ..Tools.Annotations.Formats import VOC_format_V2
-from ..Tools.Annotations.view import show_annotations
+from OPTOSTools.Annotations import VOC_format_V2
+
 
 def compute_activations(Annotation:VOC_format_V2,model,path_images:str,layer_name:str,transformation,device):
     # Visualize feature maps

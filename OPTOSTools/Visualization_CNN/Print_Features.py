@@ -1,6 +1,6 @@
-from tensorflow.keras.models import Model
-import numpy as np
 import cv2
+from tensorflow.keras.models import Model
+
 
 class Model_CNN:
     """ Model_CNN(model)

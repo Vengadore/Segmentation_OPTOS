@@ -1,9 +1,12 @@
-import xml.etree.ElementTree as ET
 import copy
-import numpy as np
-from ..Generators.Binary_generator import bb_intersection_over_union as bbIoU
-from ..Annotations.Formats import VOC_format_V2
 import os
+import xml.etree.ElementTree as ET
+
+import numpy as np
+
+from ..Annotations.Formats import VOC_format_V2
+from ..Generators.Binary_generator import bb_intersection_over_union as bbIoU
+
 
 def createBackgroundBB(Annotation:VOC_format_V2,verbose = False):
     # Extract all the bounding boxes
