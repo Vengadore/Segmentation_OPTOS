@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='SegOPTOS',
     version='0.1',
-    packages=['pandas','opencv-python','lxml','scikit-learn'],
+    packages=['OPTOS'],
     url='https://github.com/Vengadore/Segmentation_OPTOS',
     license='',
     author='César Rolando Carrillo Gómez',
